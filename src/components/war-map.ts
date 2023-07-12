@@ -1,7 +1,6 @@
 import {css, html, LitElement, TemplateResult} from 'lit';
 import {customElement, query} from 'lit/decorators.js';
-import { fabric } from "fabric"; 
-
+import {fabric} from 'fabric';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -29,29 +28,41 @@ export class WarMap extends LitElement {
 
   firstUpdated() {
     const canvas = new fabric.Canvas(this.canvas, {
+      preserveObjectStacking: true,
       width: 1920,
       height: 1080,
     });
 
     const rect = new fabric.Rect({
-      top : 100,
-      left : 100,
-      width : 60,
-      height : 70,
-      fill : 'red'
+      top: 100,
+      left: 100,
+      width: 60,
+      height: 70,
+      strokeWidth: 1,
+      stroke: 'red',
+      fill: 'rgba(0,0,0,0)',
     });
 
-    canvas.add(rect);
-    canvas.setActiveObject(rect);
-
-    fabric.Image.fromURL('../assets/map.jpg', function(map) {
+    fabric.Image.fromURL('../assets/map.jpg', function (map) {
+      map.selectable = false;
       canvas.add(map);
       map.center();
+      canvas.add(rect);
     });
+
+    canvas.on('mouse:down', this.handleMouseDown);
   }
   render(): TemplateResult {
-    return html`
-      <canvas id="canvas" styles="height: 100vh; width: 100vw"></canvas>`;
+    return html` <canvas
+      id="canvas"
+      styles="height: 100vh; width: 100vw"
+    ></canvas>`;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleMouseDown(options: any) {
+    const clickedObject = options.target;
+    console.log(clickedObject);
   }
 }
 
