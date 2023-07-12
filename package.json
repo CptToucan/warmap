@@ -16,6 +16,8 @@
   ],
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@types/fabric": "^5.3.3",
+    "fabric": "^5.3.0",
     "lit": "^2.1.0"
   },
   "devDependencies": {
