@@ -45,9 +45,29 @@ export class WarMap extends LitElement {
       fill: 'rgba(0,0,0,0)',
     });
 
+    const red2 = new fabric.Rect({
+      top: 400,
+      left: 400,
+      width: 60,
+      height: 70,
+      strokeWidth: 1,
+      stroke: 'red',
+      fill: 'rgba(0,0,0,0)',
+    });
+
     const blue = new fabric.Rect({
       top: 200,
       left: 200,
+      width: 60,
+      height: 70,
+      strokeWidth: 1,
+      stroke: 'blue',
+      fill: 'rgba(0,0,0,0)',
+    });
+
+    const blue2 = new fabric.Rect({
+      top: 200,
+      left: 700,
       width: 60,
       height: 70,
       strokeWidth: 1,
@@ -59,7 +79,9 @@ export class WarMap extends LitElement {
       map.selectable = false;
       canvas.add(map);
       canvas.add(red);
+      canvas.add(red2);
       canvas.add(blue);
+      canvas.add(blue2);
     });
   }
   render(): TemplateResult {
@@ -174,12 +196,7 @@ function findClosestColor(
   ) {
     const dX = pixel1.x - pixel2.x;
     const dY = pixel1.y - pixel2.y;
-    const colorDistance = Math.sqrt(
-      (pixel1.r - pixel2.r) ** 2 +
-        (pixel1.g - pixel2.g) ** 2 +
-        (pixel1.b - pixel2.b) ** 2
-    );
-    return Math.sqrt(dX ** 2 + dY ** 2 + colorDistance ** 2);
+    return Math.sqrt(dX ** 2 + dY ** 2);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
