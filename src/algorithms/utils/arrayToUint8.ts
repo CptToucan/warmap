@@ -1,12 +1,12 @@
-import {twoDArrayConvertType} from './unit8ToArray';
+import {IUnit8ToArray} from './unit8ToArray';
 
-interface arrayToUint8Type {
+interface IArrayToUint8 {
   width: number;
   height: number;
-  pixels: twoDArrayConvertType[];
+  pixels: IUnit8ToArray[];
 }
 
-export const arrayToUint8 = ({width, height, pixels}: arrayToUint8Type) => {
+export const arrayToUint8 = ({width, height, pixels}: IArrayToUint8) => {
   const mergedPixels = new Uint8ClampedArray(width * height * 4);
 
   //we can set the default background colour here
