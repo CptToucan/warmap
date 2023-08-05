@@ -2,7 +2,7 @@ import {css, html, LitElement, TemplateResult} from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
-import {createImageData, unit8ToArray, arrayToUint8} from '../algorithms/utils';
+import {unit8ToArray, arrayToUint8, updateCanvas} from '../algorithms/utils';
 import {crow} from '../algorithms/crow';
 
 @customElement('war-map')
@@ -149,15 +149,12 @@ export class WarMap extends LitElement {
     });
 
     // Put the modified image data back to the canvas
-    const imageOptions = {
-      colorSpace: 'srgb',
+    updateCanvas({
       height: this.canvas.height,
       width: this.canvas.width,
-      data: mergedPixels,
-    };
-
-    const newImageData = createImageData(imageOptions);
-    ctx.putImageData(newImageData, 0, 0);
+      pixels: mergedPixels,
+      ctx,
+    });
   }
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
