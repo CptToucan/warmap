@@ -3,6 +3,7 @@ import {css, html, LitElement, TemplateResult} from 'lit';
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
 import {createImageData, unit8ToArray, arrayToUint8} from '../algorithms/utils';
+import {crow} from '../algorithms/crow';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -139,11 +140,7 @@ export class WarMap extends LitElement {
       }
     }
 
-    const updatedRoadPixels = findClosestColor(
-      roadPixels,
-      redPixels,
-      bluePixels
-    );
+    const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
 
     const mergedPixels = arrayToUint8({
       height: this.canvas.height,
@@ -179,57 +176,6 @@ function isRGBAColor(rgbaValue: any, targetColor: any, tolerance = 40) {
     bDiff <= tolerance &&
     aDiff <= tolerance
   );
-}
-
-function findClosestColor(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  roadPixels: any[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  redPixels: any[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bluePixels: any[]
-) {
-  // Helper function to calculate the distance between two pixels
-  function pixelDistance(
-    pixel1: {x: number; y: number; r: number; g: number; b: number},
-    pixel2: {x: number; y: number; r: number; g: number; b: number}
-  ) {
-    const dX = pixel1.x - pixel2.x;
-    const dY = pixel1.y - pixel2.y;
-    return Math.sqrt(dX ** 2 + dY ** 2);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getClosestColor(roadPixel: any) {
-    let closestColor = 'red'; // Assume red is the closest color
-    let minDistance = pixelDistance(roadPixel, redPixels[0]); // Initialize with distance to the first red pixel
-
-    // Calculate distance to each red pixel
-    for (const redPixel of redPixels) {
-      const distance = pixelDistance(roadPixel, redPixel);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestColor = 'red';
-      }
-    }
-
-    // Calculate distance to each blue pixel
-    for (const bluePixel of bluePixels) {
-      const distance = pixelDistance(roadPixel, bluePixel);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestColor = 'blue';
-      }
-    }
-
-    return closestColor === 'red'
-      ? {...redPixels[0], x: roadPixel.x, y: roadPixel.y} // Create a copy of the closest red pixel
-      : {...bluePixels[0], x: roadPixel.x, y: roadPixel.y}; // Create a copy of the closest blue pixel
-  }
-
-  // Create a new array of updated roadPixels
-  const updatedRoadPixels = roadPixels.map(getClosestColor);
-  return updatedRoadPixels;
 }
 
 declare global {

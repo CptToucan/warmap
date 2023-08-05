@@ -9,10 +9,11 @@ interface arrayToUint8Type {
 export const arrayToUint8 = ({width, height, pixels}: arrayToUint8Type) => {
   const mergedPixels = new Uint8ClampedArray(width * height * 4);
 
+  //we can set the default background colour here
   for (let i = 0; i < mergedPixels.length; i += 4) {
-    mergedPixels[i] = 0;
-    mergedPixels[i + 1] = 0;
-    mergedPixels[i + 2] = 0;
+    mergedPixels[i] = 255;
+    mergedPixels[i + 1] = 255;
+    mergedPixels[i + 2] = 255;
     mergedPixels[i + 3] = 255; // Set alpha to 255 (fully opaque)
   }
 
