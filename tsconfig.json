@@ -14,10 +14,8 @@
     "inlineSources": true,
     "incremental": true,
     "skipLibCheck": true,
-
     "declaration": true,
     "declarationMap": true,
-
     "outDir": "./build/tsc",
     "baseUrl": "/",
     "rootDir": "./src",

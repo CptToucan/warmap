@@ -1,6 +1,8 @@
 import {css, html, LitElement, TemplateResult} from 'lit';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
+import {createImageData, unit8ToArray, arrayToUint8} from '../algorithms/utils';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -84,7 +86,7 @@ export class WarMap extends LitElement {
       this.canvas.height
     );
 
-    const array2dPixelData = convertTo2DArray(
+    const array2dPixelData = unit8ToArray(
       imageData.data,
       this.canvas.width,
       this.canvas.height
@@ -121,26 +123,11 @@ export class WarMap extends LitElement {
       bluePixels
     );
 
-    const mergedPixels = new Uint8ClampedArray(
-      this.canvas.width * this.canvas.height * 4
-    );
-
-    for (let i = 0; i < mergedPixels.length; i += 4) {
-      mergedPixels[i] = 0;
-      mergedPixels[i + 1] = 0;
-      mergedPixels[i + 2] = 0;
-      mergedPixels[i + 3] = 255; // Set alpha to 255 (fully opaque)
-    }
-
-    for (const pixel of [...updatedRoadPixels, ...redPixels, ...bluePixels]) {
-      const x = pixel.x;
-      const y = pixel.y;
-      const index = (y * this.canvas.width + x) * 4;
-      mergedPixels[index] = pixel.r;
-      mergedPixels[index + 1] = pixel.g;
-      mergedPixels[index + 2] = pixel.b;
-      mergedPixels[index + 3] = 255; // Set alpha to 255 (fully opaque)
-    }
+    const mergedPixels = arrayToUint8({
+      height: this.canvas.height,
+      width: this.canvas.width,
+      pixels: [...updatedRoadPixels, ...redPixels, ...bluePixels],
+    });
 
     // Put the modified image data back to the canvas
     const imageOptions = {
@@ -170,45 +157,6 @@ function isRGBAColor(rgbaValue: any, targetColor: any, tolerance = 40) {
     bDiff <= tolerance &&
     aDiff <= tolerance
   );
-}
-
-type twodArrayConvertType = {
-  x: number;
-  y: number;
-  r: number;
-  g: number;
-  b: number;
-  a: number;
-};
-
-function convertTo2DArray(
-  uint8ClampedArray: Uint8ClampedArray,
-  width: number,
-  height: number
-): twodArrayConvertType[][] {
-  if (uint8ClampedArray.length !== width * height * 4) {
-    throw new Error(
-      'The length of the Uint8ClampedArray does not match the given dimensions.'
-    );
-  }
-
-  const result: twodArrayConvertType[][] = new Array(width);
-
-  for (let x = 0; x < width; x++) {
-    result[x] = new Array(height);
-
-    for (let y = 0; y < height; y++) {
-      const index = (y * width + x) * 4;
-      const r = uint8ClampedArray[index];
-      const g = uint8ClampedArray[index + 1];
-      const b = uint8ClampedArray[index + 2];
-      const a = uint8ClampedArray[index + 3];
-
-      result[x][y] = {x, y, r, g, b, a};
-    }
-  }
-
-  return result;
 }
 
 function findClosestColor(
@@ -265,28 +213,6 @@ function findClosestColor(
   // Create a new array of updated roadPixels
   const updatedRoadPixels = roadPixels.map(getClosestColor);
   return updatedRoadPixels;
-}
-
-interface ImageDataOptions {
-  colorSpace: string;
-  height: number;
-  width: number;
-  data: Uint8ClampedArray;
-}
-
-function createImageData({height, width, data}: ImageDataOptions): ImageData {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  if (!ctx) {
-    throw new Error('Canvas context not supported');
-  }
-
-  // Create an ImageData object
-  const imageData = ctx.createImageData(width, height);
-  imageData.data.set(data);
-
-  return imageData;
 }
 
 declare global {
