@@ -1,3 +1,4 @@
 export * from './updateCanvas';
-export * from './unit8ToArray';
+export * from './uint8ToArray';
 export * from './arrayToUint8';
+export * from './removeDuplicates';

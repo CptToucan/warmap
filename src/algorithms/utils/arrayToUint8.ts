@@ -1,9 +1,9 @@
-import {IUnit8ToArray} from './unit8ToArray';
+import {IUint8ToArray} from './uint8ToArray';
 
 interface IArrayToUint8 {
   width: number;
   height: number;
-  pixels: IUnit8ToArray[];
+  pixels: IUint8ToArray[];
 }
 
 export const arrayToUint8 = ({width, height, pixels}: IArrayToUint8) => {

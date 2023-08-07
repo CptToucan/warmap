@@ -2,8 +2,9 @@ import {css, html, LitElement, TemplateResult} from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
-import {unit8ToArray, arrayToUint8, updateCanvas} from '../algorithms/utils';
-import {crow} from '../algorithms/crow';
+import {uint8ToArray, arrayToUint8, updateCanvas} from '../algorithms/utils';
+// import {crow} from '../algorithms/crow';
+import {bounding} from '../algorithms/bounding';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -41,7 +42,7 @@ export class WarMap extends LitElement {
       left: 100,
       width: 60,
       height: 70,
-      strokeWidth: 1,
+      strokeWidth: 2,
       stroke: 'red',
       fill: 'rgba(0,0,0,0)',
     });
@@ -51,7 +52,7 @@ export class WarMap extends LitElement {
       left: 400,
       width: 60,
       height: 70,
-      strokeWidth: 1,
+      strokeWidth: 2,
       stroke: 'red',
       fill: 'rgba(0,0,0,0)',
     });
@@ -61,7 +62,7 @@ export class WarMap extends LitElement {
       left: 200,
       width: 60,
       height: 70,
-      strokeWidth: 1,
+      strokeWidth: 2,
       stroke: 'blue',
       fill: 'rgba(0,0,0,0)',
     });
@@ -71,7 +72,7 @@ export class WarMap extends LitElement {
       left: 700,
       width: 60,
       height: 70,
-      strokeWidth: 1,
+      strokeWidth: 2,
       stroke: 'blue',
       fill: 'rgba(0,0,0,0)',
     });
@@ -109,7 +110,7 @@ export class WarMap extends LitElement {
       this.canvas.height
     );
 
-    const array2dPixelData = unit8ToArray(
+    const array2dPixelData = uint8ToArray(
       imageData.data,
       this.canvas.width,
       this.canvas.height
@@ -140,12 +141,20 @@ export class WarMap extends LitElement {
       }
     }
 
-    const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
+    // const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
+
+    const updatedRoadPixels = bounding(roadPixels, redPixels, bluePixels);
 
     const mergedPixels = arrayToUint8({
       height: this.canvas.height,
       width: this.canvas.width,
-      pixels: [...updatedRoadPixels, ...redPixels, ...bluePixels],
+      // pixels: [...updatedRoadPixels, ...redPixels, ...bluePixels],
+      pixels: [
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ...(updatedRoadPixels as any[]),
+        ...redPixels,
+        ...bluePixels,
+      ],
     });
 
     // Put the modified image data back to the canvas
@@ -159,20 +168,14 @@ export class WarMap extends LitElement {
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isRGBAColor(rgbaValue: any, targetColor: any, tolerance = 40) {
-  const [r1, g1, b1, a1 = 1] = rgbaValue;
-  const [r2, g2, b2, a2 = 1] = targetColor;
+  const [r1, g1, b1] = rgbaValue;
+  const [r2, g2, b2] = targetColor;
 
   const rDiff = Math.abs(r1 - r2);
   const gDiff = Math.abs(g1 - g2);
   const bDiff = Math.abs(b1 - b2);
-  const aDiff = Math.abs(a1 - a2);
 
-  return (
-    rDiff <= tolerance &&
-    gDiff <= tolerance &&
-    bDiff <= tolerance &&
-    aDiff <= tolerance
-  );
+  return rDiff <= tolerance && gDiff <= tolerance && bDiff <= tolerance;
 }
 
 declare global {

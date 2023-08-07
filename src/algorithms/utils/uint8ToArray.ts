@@ -1,4 +1,4 @@
-export interface IUnit8ToArray {
+export interface IUint8ToArray {
   x: number;
   y: number;
   r: number;
@@ -7,18 +7,18 @@ export interface IUnit8ToArray {
   a: number;
 }
 
-export const unit8ToArray = (
+export const uint8ToArray = (
   uint8ClampedArray: Uint8ClampedArray,
   width: number,
   height: number
-): IUnit8ToArray[][] => {
+): IUint8ToArray[][] => {
   if (uint8ClampedArray.length !== width * height * 4) {
     throw new Error(
       'The length of the Uint8ClampedArray does not match the given dimensions.'
     );
   }
 
-  const result: IUnit8ToArray[][] = new Array(width);
+  const result: IUint8ToArray[][] = new Array(width);
 
   for (let x = 0; x < width; x++) {
     result[x] = new Array(height);
