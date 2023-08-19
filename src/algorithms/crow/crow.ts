@@ -17,6 +17,9 @@ export const crow = (
   redPixels: PixelData[],
   bluePixels: PixelData[]
 ) => {
+  if (!redPixels.length || !bluePixels.length) {
+    return;
+  }
   // Precompute the closest color for each roadPixel
   const closestColors = roadPixels.map((pixel: PixelData) => {
     let closestColor = 'red'; // Assume red is the closest color

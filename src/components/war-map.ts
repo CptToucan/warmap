@@ -36,10 +36,16 @@ export class WarMap extends LitElement {
 
     this.fabricCanvas = canvas;
 
-    fabric.Image.fromURL('../assets/map.jpg', function (map) {
-      map.selectable = false;
-      canvas.add(map);
-    });
+    this.addMap();
+  }
+
+  private addMap() {
+    if (this.fabricCanvas) {
+      fabric.Image.fromURL('../assets/map.jpg', (map) => {
+        map.selectable = false;
+        this?.fabricCanvas?.add(map);
+      });
+    }
   }
 
   render(): TemplateResult {
@@ -51,7 +57,7 @@ export class WarMap extends LitElement {
     </div>`;
   }
 
-  handleAddBlue() {
+  private handleAddBlue() {
     const newRect = new fabric.Rect({
       top: 300,
       left: 300,
@@ -60,11 +66,12 @@ export class WarMap extends LitElement {
       strokeWidth: 2,
       stroke: 'blue',
       fill: 'rgba(0,0,0,0)',
+      strokeUniform: true,
     });
     this?.fabricCanvas?.add(newRect);
   }
 
-  handleAddRed() {
+  private handleAddRed() {
     const newRect = new fabric.Rect({
       top: 300,
       left: 600,
@@ -73,11 +80,12 @@ export class WarMap extends LitElement {
       strokeWidth: 2,
       stroke: 'red',
       fill: 'rgba(0,0,0,0)',
+      strokeUniform: true,
     });
     this?.fabricCanvas?.add(newRect);
   }
 
-  handleClick() {
+  private handleClick() {
     const ctx = this.canvas.getContext('2d');
     if (!ctx || !this.fabricCanvas) {
       return;
@@ -126,13 +134,17 @@ export class WarMap extends LitElement {
     }
 
     const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
-
     // const updatedRoadPixels = bounding(roadPixels, redPixels, bluePixels);
+
+    //if we can't find the red or blue pixels, exit early
+    if (!updatedRoadPixels) {
+      console.error('No red or blue spawns could be found');
+      return;
+    }
 
     const mergedPixels = arrayToUint8({
       height: this.canvas.height,
       width: this.canvas.width,
-      // pixels: [...updatedRoadPixels, ...redPixels, ...bluePixels],
       pixels: [
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...(updatedRoadPixels as any[]),
