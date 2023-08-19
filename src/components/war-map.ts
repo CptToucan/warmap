@@ -3,8 +3,9 @@ import {css, html, LitElement, TemplateResult} from 'lit';
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
 import {uint8ToArray, arrayToUint8, updateCanvas} from '../algorithms/utils';
-// import {crow} from '../algorithms/crow';
-import {bounding} from '../algorithms/bounding';
+import {crow} from '../algorithms/crow';
+// import {bounding} from '../algorithms/bounding';
+import {isRGBAColor} from '../algorithms/utils/isRGBColour';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -15,11 +16,6 @@ export class WarMap extends LitElement {
         height: 100%;
         width: 100%;
       }
-      h1 {
-        font-size: var(--lumo-font-size-l);
-        margin: var(--lumo-space-m);
-      }
-
       canvas {
         height: 100vh;
         width: 100vw;
@@ -29,6 +25,7 @@ export class WarMap extends LitElement {
 
   @query('canvas')
   private canvas!: HTMLCanvasElement;
+  private fabricCanvas?: fabric.Canvas | undefined;
 
   firstUpdated() {
     const canvas = new fabric.Canvas(this.canvas, {
@@ -37,65 +34,52 @@ export class WarMap extends LitElement {
       height: 1080,
     });
 
-    const red = new fabric.Rect({
-      top: 100,
-      left: 100,
-      width: 60,
-      height: 70,
-      strokeWidth: 2,
-      stroke: 'red',
-      fill: 'rgba(0,0,0,0)',
-    });
-
-    const red2 = new fabric.Rect({
-      top: 400,
-      left: 400,
-      width: 60,
-      height: 70,
-      strokeWidth: 2,
-      stroke: 'red',
-      fill: 'rgba(0,0,0,0)',
-    });
-
-    const blue = new fabric.Rect({
-      top: 200,
-      left: 200,
-      width: 60,
-      height: 70,
-      strokeWidth: 2,
-      stroke: 'blue',
-      fill: 'rgba(0,0,0,0)',
-    });
-
-    const blue2 = new fabric.Rect({
-      top: 200,
-      left: 700,
-      width: 60,
-      height: 70,
-      strokeWidth: 2,
-      stroke: 'blue',
-      fill: 'rgba(0,0,0,0)',
-    });
+    this.fabricCanvas = canvas;
 
     fabric.Image.fromURL('../assets/map.jpg', function (map) {
       map.selectable = false;
       canvas.add(map);
-      canvas.add(red);
-      canvas.add(red2);
-      canvas.add(blue);
-      canvas.add(blue2);
     });
   }
+
   render(): TemplateResult {
     return html`<div>
       <canvas id="canvas"></canvas>
       <button @click="${this.handleClick}">Click me</button>
+      <button @click="${this.handleAddBlue}">Add Blue Spawn</button>
+      <button @click="${this.handleAddRed}">Add Red Spawn</button>
     </div>`;
+  }
+
+  handleAddBlue() {
+    const newRect = new fabric.Rect({
+      top: 300,
+      left: 300,
+      width: 70,
+      height: 70,
+      strokeWidth: 2,
+      stroke: 'blue',
+      fill: 'rgba(0,0,0,0)',
+    });
+    this?.fabricCanvas?.add(newRect);
+  }
+
+  handleAddRed() {
+    const newRect = new fabric.Rect({
+      top: 300,
+      left: 600,
+      width: 70,
+      height: 70,
+      strokeWidth: 2,
+      stroke: 'red',
+      fill: 'rgba(0,0,0,0)',
+    });
+    this?.fabricCanvas?.add(newRect);
   }
 
   handleClick() {
     const ctx = this.canvas.getContext('2d');
-    if (!ctx) {
+    if (!ctx || !this.fabricCanvas) {
       return;
     }
     const roadPixels = [];
@@ -141,9 +125,9 @@ export class WarMap extends LitElement {
       }
     }
 
-    // const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
+    const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
 
-    const updatedRoadPixels = bounding(roadPixels, redPixels, bluePixels);
+    // const updatedRoadPixels = bounding(roadPixels, redPixels, bluePixels);
 
     const mergedPixels = arrayToUint8({
       height: this.canvas.height,
@@ -165,17 +149,6 @@ export class WarMap extends LitElement {
       ctx,
     });
   }
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isRGBAColor(rgbaValue: any, targetColor: any, tolerance = 40) {
-  const [r1, g1, b1] = rgbaValue;
-  const [r2, g2, b2] = targetColor;
-
-  const rDiff = Math.abs(r1 - r2);
-  const gDiff = Math.abs(g1 - g2);
-  const bDiff = Math.abs(b1 - b2);
-
-  return rDiff <= tolerance && gDiff <= tolerance && bDiff <= tolerance;
 }
 
 declare global {
