@@ -13,8 +13,8 @@ export interface RGBAPoint {
 /* eslint-disable @typescript-eslint/no-unused-vars */
 export const bounding = (
   roadPixels: RGBAPoint[],
-  _redPixels: RGBAPoint[],
-  _bluePixels: RGBAPoint[]
+  redPixels: RGBAPoint[],
+  bluePixels: RGBAPoint[]
 ) => {
   // const nextPixelsFromRed: RGBAPoint[] = [];
   // const nextPixelsFromBlue: RGBAPoint[] = [];
@@ -69,12 +69,7 @@ export const bounding = (
 
   console.log(roadPixels);
 
-  const a = boundOutFromPoints(roadPixels, [
-    // {x: 0, y: 300, r: 255, g: 0, b: 0, a: 255},
-    // {x: 1923, y: 1014, r: 0, g: 0, b: 255, a: 255},
-    {x: 0, y: 300},
-    {x: 1923, y: 1014},
-  ]);
+  const a = boundOutFromPoints(roadPixels, [...redPixels, ...bluePixels]);
 
   // console.log(a);
   return a;
@@ -134,6 +129,7 @@ function boundOutFromPoints(
   objects: RGBAPoint[],
   startPoints: {x: number; y: number}[]
 ): RGBAPoint[] {
+  let iteration = 0;
   const newObjects: RGBAPoint[] = [];
   const maxX = Math.max(...objects.map((obj) => obj.x));
   const maxY = Math.max(...objects.map((obj) => obj.y));
@@ -163,6 +159,8 @@ function boundOutFromPoints(
   }
 
   while (queueStart < queueEnd) {
+    console.log(iteration);
+    iteration++;
     const {x, y} = dequeue();
     const key = y * (maxX + 1) + x;
 
@@ -182,6 +180,11 @@ function boundOutFromPoints(
           }
         }
       }
+    }
+
+    if (iteration === 1000) {
+      iteration = 0;
+      return newObjects;
     }
   }
 

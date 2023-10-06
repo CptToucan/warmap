@@ -2,9 +2,10 @@ import {css, html, LitElement, TemplateResult} from 'lit';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {customElement, query} from 'lit/decorators.js';
 import {fabric} from 'fabric';
-import {uint8ToArray, arrayToUint8, updateCanvas} from '../algorithms/utils';
+import {arrayToUint8, uint8ToArray, updateCanvas} from '../algorithms/utils';
+import {bounding} from '../algorithms/bounding/bounding';
 // import {crow} from '../algorithms/crow';
-import {bounding} from '../algorithms/bounding';
+// import {bounding} from '../algorithms/bounding';
 
 @customElement('war-map')
 export class WarMap extends LitElement {
@@ -77,14 +78,17 @@ export class WarMap extends LitElement {
       fill: 'rgba(0,0,0,0)',
     });
 
-    fabric.Image.fromURL('../assets/map.jpg', function (map) {
-      map.selectable = false;
-      canvas.add(map);
-      canvas.add(red);
-      canvas.add(red2);
-      canvas.add(blue);
-      canvas.add(blue2);
-    });
+    fabric.Image.fromURL(
+      '../assets/Cyrus/_3x3_Cyrus_Yellow_noBackground.png',
+      function (map) {
+        map.selectable = false;
+        canvas.add(map);
+        canvas.add(red);
+        canvas.add(red2);
+        canvas.add(blue);
+        canvas.add(blue2);
+      }
+    );
   }
   render(): TemplateResult {
     return html`<div>
@@ -110,15 +114,18 @@ export class WarMap extends LitElement {
       this.canvas.height
     );
 
+    console.log('imageData', imageData);
+
     const array2dPixelData = uint8ToArray(
       imageData.data,
       this.canvas.width,
       this.canvas.height
     );
 
+    console.log('array2dPixelData', array2dPixelData);
+
     const redColour = [255, 0, 0];
     const blueColour = [0, 0, 255];
-    const roadColour = [140, 135, 1];
     for (let x = 0; x < this.canvas.width; x++) {
       for (let y = 0; y < this.canvas.height; y++) {
         const colourData = [
@@ -127,19 +134,29 @@ export class WarMap extends LitElement {
           array2dPixelData[x][y].b,
         ];
 
-        switch (true) {
-          case isRGBAColor(colourData, redColour):
-            redPixels.push(array2dPixelData[x][y]);
-            break;
-          case isRGBAColor(colourData, blueColour):
-            bluePixels.push(array2dPixelData[x][y]);
-            break;
-          case isRGBAColor(colourData, roadColour):
-            roadPixels.push(array2dPixelData[x][y]);
-            break;
+        if (
+          array2dPixelData[x][y].r !== 0 ||
+          array2dPixelData[x][y].g !== 0 ||
+          array2dPixelData[x][y].b !== 0
+        ) {
+          switch (true) {
+            case isRGBAColor(colourData, redColour):
+              redPixels.push(array2dPixelData[x][y]);
+              break;
+            case isRGBAColor(colourData, blueColour):
+              bluePixels.push(array2dPixelData[x][y]);
+              break;
+            default:
+              roadPixels.push(array2dPixelData[x][y]);
+              break;
+          }
         }
       }
     }
+
+    console.log('redPixels', redPixels);
+    console.log('bluePixels', bluePixels);
+    console.log('roadPixels', roadPixels);
 
     // const updatedRoadPixels = crow(roadPixels, redPixels, bluePixels);
 
@@ -148,7 +165,7 @@ export class WarMap extends LitElement {
     const mergedPixels = arrayToUint8({
       height: this.canvas.height,
       width: this.canvas.width,
-      // pixels: [...updatedRoadPixels, ...redPixels, ...bluePixels],
+
       pixels: [
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...(updatedRoadPixels as any[]),
