@@ -7,17 +7,10 @@ interface IArrayToUint8 {
 }
 
 export const arrayToUint8 = ({width, height, pixels}: IArrayToUint8) => {
-  const mergedPixels = new Uint8ClampedArray(width * height * 4);
+  const mergedPixels = new Uint8ClampedArray(width * height * 4).fill(255);
 
-  //we can set the default background colour here
-  for (let i = 0; i < mergedPixels.length; i += 4) {
-    mergedPixels[i] = 255;
-    mergedPixels[i + 1] = 255;
-    mergedPixels[i + 2] = 255;
-    mergedPixels[i + 3] = 255; // Set alpha to 255 (fully opaque)
-  }
-
-  for (const pixel of pixels) {
+  for (let i = 0; i < pixels.length; i++) {
+    const pixel = pixels[i];
     const x = pixel.x;
     const y = pixel.y;
     const index = (y * width + x) * 4;

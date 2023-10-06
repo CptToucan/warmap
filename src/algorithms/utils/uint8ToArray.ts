@@ -24,12 +24,14 @@ export const uint8ToArray = (
     result[x] = new Array(height);
     for (let y = 0; y < height; y++) {
       const index = (y * width + x) * 4;
-      const r = uint8ClampedArray[index];
-      const g = uint8ClampedArray[index + 1];
-      const b = uint8ClampedArray[index + 2];
-      const a = uint8ClampedArray[index + 3];
-
-      result[x][y] = {x, y, r, g, b, a};
+      result[x][y] = {
+        x,
+        y,
+        r: uint8ClampedArray[index],
+        g: uint8ClampedArray[index + 1],
+        b: uint8ClampedArray[index + 2],
+        a: uint8ClampedArray[index + 3],
+      };
     }
   }
 
